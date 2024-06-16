@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, primaryKey, serial, text, uuid } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, primaryKey, serial, text, uuid } from 'drizzle-orm/pg-core';
 
 
 export const userTable = pgTable( "userTable", {
@@ -16,6 +16,8 @@ export const userRelations = relations( userTable, ({many}) => ({
     usersToRooms: many(usersToRoomsTable),
     personalMessages: many(personalMessagesTable),
     roomMessages: many(roomMessagesTable),
+    requestFriendee: many(friendsRequestTable, {relationName: 'friendee'}),
+    requestFriends: many(friendsRequestTable, {relationName: 'friends'}),
 }))
 
 
@@ -39,6 +41,32 @@ export const friendsRelations = relations( friendsTable, ({one}) => ({
         relationName: 'friends',
     })
 }) )
+
+
+export const statusEnum= pgEnum("statusEnum", ["pending", "accepted", "rejected"])
+
+
+export const friendsRequestTable = pgTable( "friendsRequestTable", {
+    userId: uuid('userId').notNull().references(() => userTable.userId),
+    friendId: uuid('friendId').notNull().references(() => userTable.userId),
+    status: statusEnum('status').notNull().default('pending')
+}, (t) => ({
+    pk: primaryKey({columns: [t.userId, t.friendId]}),
+}))
+
+
+export const friendsRequestTableRelations= relations( friendsRequestTable, ({one}) => ({
+    friendee: one(userTable, {
+        fields: [friendsRequestTable.userId],
+        references: [userTable.userId],
+        relationName: 'friendee',
+    }),
+    friends: one(userTable, {
+        fields: [friendsRequestTable.friendId],
+        references: [userTable.userId],
+        relationName: 'friends',
+    })
+}))
 
 
 export const roomsTable = pgTable( "roomsTable", {

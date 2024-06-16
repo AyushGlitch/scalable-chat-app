@@ -28,3 +28,31 @@ export const loginUser= async (data: {email: string, password: string}) => {
     // console.log("Response: ", response.data)
     return response.data
 }
+
+
+export type friendsSearchType = {
+    searchTerm: string
+}
+
+export const searchFriends= async (data: friendsSearchType) => {
+    const response= await axiosInstance.get(`/api/friends/search/${data.searchTerm}`, {withCredentials: true})
+    return response.data.searchTerms
+}
+
+
+export const getAlreadyFriends= async () => {
+    const response= await axiosInstance.get(`/api/friends/alreadyFriends`, {withCredentials: true})
+    return response.data.friends
+}
+
+
+export const sendFriendRequest= async (data: {friendId: string}) => {
+    const response= await axiosInstance.post(`/api/friends/sendFriendRequest`, data, {withCredentials: true})
+    return response.data.friendRequest
+}
+
+
+export const getRecievedRequests= async () => {
+    const response = await axiosInstance.get('/api/friends/recievedRequests', {withCredentials: true})
+    return response.data.recievedRequests
+}

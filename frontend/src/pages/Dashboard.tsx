@@ -9,7 +9,7 @@ export default function Dashboard() {
 
     return (
         <div className="flex w-full">
-            <FriendsList />
+            <FriendsList user={user} />
             <ChatWindow />
         </div>
     )

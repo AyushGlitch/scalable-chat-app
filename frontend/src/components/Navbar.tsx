@@ -48,8 +48,8 @@ export default function Navbar () {
 
             <div className="flex gap-5 justify-center items-center">
                 {
-                    links.map( (link, i) => (
-                            <Button variant={'ghost'} className={cn("p-5 w-28 text-base text-white ", currPath==link.link ? "bg-slate-400" : "bg-slate-600")} asChild>
+                    links.map( (link) => (
+                            <Button variant={'ghost'} className={cn("p-5 w-28 text-base text-white ", currPath==link.link ? "bg-slate-400" : "bg-slate-600")} asChild key={link.name}>
                                 <Link to={link.link}>
                                     {link.name}
                                 </Link>
