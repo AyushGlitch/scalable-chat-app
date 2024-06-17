@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 
 type state= {
@@ -19,7 +20,7 @@ type userStoreType= {
 }
 
 
-export const useUserStore= create<userStoreType>( (set) => ({
+export const useUserStore= create<userStoreType>()( persist ( (set) => ({
     user: {
         userId: '',
         email: '',
@@ -32,5 +33,7 @@ export const useUserStore= create<userStoreType>( (set) => ({
             username: newUser.username,
         }
     }) )
-}) )
+}), {
+    name: 'userStore',
+} ) )
 
