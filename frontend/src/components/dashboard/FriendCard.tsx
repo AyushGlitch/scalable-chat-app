@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button } from "../ui/button"
 import { Card} from "../ui/card"
-import { sendFriendRequest } from "@/api/apis"
+import { acceptFriendRequest, declineFriendRequest, removeFriendQuery, sendFriendRequest } from "@/api/apis"
 
 
 type FriendCardPropsType= {
@@ -16,11 +16,17 @@ type FriendCardPropsType= {
 export default function FriendCard({friend, type}: FriendCardPropsType) {
     const queryClient= useQueryClient()
     
-    function handleRemoveFriend() {
-        alert("Remove friend")
-    }
+    
+    const removeFriend = useMutation({
+        mutationFn: () => removeFriendQuery({friendId: friend.userId}),
+        onSettled: (_, error) => {
+            if (!error) {
+                queryClient.invalidateQueries({queryKey: ['getAlreadyFriends']})
+            }
+        }
+    })
 
-
+    
     const sendFriendRequestQuery= useMutation({
         mutationFn: () => sendFriendRequest({friendId: friend.userId}),
         onSettled: () => {
@@ -28,8 +34,42 @@ export default function FriendCard({friend, type}: FriendCardPropsType) {
         }
     })
 
+
+    const acceptFriendRequestQuery= useMutation({
+        mutationFn: () => acceptFriendRequest({friendId: friend.userId}),
+        onSettled: (_, error) => {
+            if (!error) {
+                queryClient.invalidateQueries({queryKey: ['getAlreadyFriends']})
+                queryClient.invalidateQueries({queryKey: ['getRecievedRequests']})
+            }
+        }
+    })
+
+
+    const declineFriendRequestQuery= useMutation( {
+        mutationFn: () => declineFriendRequest({friendId: friend.userId}),
+        onSettled: (_, error) => {
+            if (!error) {
+                queryClient.invalidateQueries({queryKey: ['getRecievedRequests']})
+            }
+        }
+    } )
+
+
+    function handleRemoveFriend() {
+        removeFriend.mutate()
+    }
+    
     function handleSendRequest() {
         sendFriendRequestQuery.mutate()
+    }
+
+    function handleAcceptFriendRequest() {
+        acceptFriendRequestQuery.mutate()
+    }
+
+    function handleDeclineFriendRequest() {
+        declineFriendRequestQuery.mutate()
     }
 
     return (
@@ -53,10 +93,10 @@ export default function FriendCard({friend, type}: FriendCardPropsType) {
                                 </Button>
                             ) : (
                                 <div className="flex flex-col gap-5 justify-center">
-                                    <Button variant={'destructive'} size={"sm"} onClick={handleSendRequest}>
+                                    <Button variant={'destructive'} size={"sm"} onClick={handleAcceptFriendRequest}>
                                         Accept
                                     </Button>
-                                    <Button variant={'default'} size={'sm'}>
+                                    <Button variant={'default'} size={'sm'} onClick={handleDeclineFriendRequest}>
                                         Decline
                                     </Button>
                                 </div>

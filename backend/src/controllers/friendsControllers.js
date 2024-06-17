@@ -88,7 +88,9 @@ export const sendFriendRequest= async (req, res, next) => {
                                             .values({
                                                 userId: userId,
                                                 friendId: friendId,
-                                            }).returning()
+                                            })
+                                            .onConflictDoNothing({target: [friendsRequestTable.userId, friendsRequestTable.friendId]})
+                                            .returning()
 
         if (!friendRequest) {
             res.status(400).json({
@@ -129,5 +131,105 @@ export const getRecievedRequests= async (req, res, next) => {
     catch(err) {
         console.log(err, 'Error in getRecievedRequests function')
         return next(errorHandler(500, 'Error in getRecievedRequests function'))
+    }
+}
+
+
+export const removeFriend= async(req, res, next) => {
+    const userId= req.user.userId
+    const friendId= req.params.friendId
+
+    if (!friendId) {
+        res.status(400).json({
+            success: false,
+            message: 'Please provide friendId'
+        })
+    }
+
+    try {
+        const result= await dbClient.transaction( async (tx) => {
+            await tx.delete(friendsTable)
+                    .where( or( and( eq(friendsTable.userId, userId), eq(friendsTable.friendId, friendId)), and( eq(friendsTable.userId, friendId), eq(friendsTable.friendId, userId)) ))
+        } )
+
+        res.status(200).json({
+            success: true,
+            message: 'Friend removed'
+        })
+    }
+    catch(err) {
+        console.log(err, 'Error in removeFriend function')
+        return next(errorHandler(500, 'Error in removeFriend function'))
+    }
+}
+
+
+export const acceptFriendRequest= async (req, res, next) => {
+    const userId= req.user.userId
+    const friendId= req.body.friendId
+
+    if (!friendId) {
+        res.status(400).json({
+            success: false,
+            message: 'Please provide friendId'
+        })
+    }
+
+    try {
+        const result= await dbClient.transaction( async (tx) => {
+            await tx.update(friendsRequestTable)
+                    .set({
+                        status: 'accepted'
+                    })
+                    .where(and( eq(friendsRequestTable.userId, friendId), eq(friendsRequestTable.friendId, userId)))
+
+            await tx.insert(friendsTable)
+                    .values([
+                        {
+                            userId: userId,
+                            friendId: friendId
+                        }, {
+                            userId: friendId,
+                            friendId: userId
+                        }
+                    ])
+                    .onConflictDoNothing({target: [friendsTable.userId, friendsTable.friendId]})
+        })
+
+        res.status(200).json({
+            success: true,
+            message: 'Friend request accepted'
+        })
+    }
+    catch (err) {
+        console.log(err, 'Error in acceptFriendRequest function')
+        return next(errorHandler(500, 'Error in acceptFriendRequest function'))
+    }
+}
+
+
+export const declineFriendRequest= async (req, res, next) => {
+    const userId= req.user.userId
+    const friendId= req.body.friendId
+    
+    if (!friendId) {
+        res.status(400).json({
+            success: false,
+            message: 'Please provide friendId'
+        })
+    }
+
+    try {
+        await dbClient.delete(friendsRequestTable)
+                                    .where(and( eq(friendsRequestTable.userId, friendId), eq(friendsRequestTable.friendId, userId)))
+
+        res.status(200).json({
+            success: true,
+            message: 'Friend request declined'
+        })
+    }
+    catch(err) {
+        console.log(err, 'Error in declineFriendRequest function')
+        return next(errorHandler(500, 'Error in declineFriendRequest function'))
     }
 }

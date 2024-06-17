@@ -1,21 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card } from "../ui/card";
 import { getAlreadyFriends } from "@/api/apis";
 import { LoaderCircle } from "lucide-react";
-import AlreadyFriendCard from "./AlreadyFriendCard";
 import FriendCard from "../dashboard/FriendCard";
 
 
 
-type AlreadyFriendsProps = {
-    user: {
-        username: string;
-        email: string;
-        userId: string;
-    }
-}
-
-export default function AlreadyFriends ({user}: AlreadyFriendsProps) {
+export default function AlreadyFriends () {
 
     const getAlreadyFriendsQuery= useQuery({
         queryKey: ['getAlreadyFriends'],

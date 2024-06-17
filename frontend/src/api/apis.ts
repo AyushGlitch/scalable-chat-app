@@ -48,11 +48,34 @@ export const getAlreadyFriends= async () => {
 
 export const sendFriendRequest= async (data: {friendId: string}) => {
     const response= await axiosInstance.post(`/api/friends/sendFriendRequest`, data, {withCredentials: true})
+    console.log("Response: ", response.data)
     return response.data.friendRequest
 }
 
 
 export const getRecievedRequests= async () => {
     const response = await axiosInstance.get('/api/friends/recievedRequests', {withCredentials: true})
+    console.log("Response: ", response.data)
     return response.data.recievedRequests
+}
+
+
+export const removeFriendQuery= async (data: {friendId: string}) => {
+    const response= await axiosInstance.delete(`/api/friends/removeFriend/${data.friendId}`, {withCredentials: true})
+    console.log("Response: ", response.data)
+    return response.data
+}
+
+
+export const acceptFriendRequest= async (data: {friendId: string}) => {
+    const response=  await axiosInstance.put('/api/friends/acceptFriendRequest', data, {withCredentials: true})
+    console.log("Response: ", response.data)
+    return response.data
+}
+
+
+export const declineFriendRequest= async (data: {friendId: string}) => {
+    const response= await axiosInstance.put('/api/friends/declineFriendRequest', data, {withCredentials: true})
+    console.log("Response: ", response.data)
+    return response.data
 }

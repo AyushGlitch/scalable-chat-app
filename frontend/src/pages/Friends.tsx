@@ -11,8 +11,8 @@ export default function Friends() {
     return (
         <div className="grid grid-cols-3 gap-3">
             <FriendsList user={user} />
-            <AlreadyFriends user= {user}/>
-            <RequestList user={user}/>
+            <AlreadyFriends/>
+            <RequestList/>
         </div>
     )
 }

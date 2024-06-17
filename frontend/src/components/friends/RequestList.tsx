@@ -5,16 +5,7 @@ import FriendCard from "../dashboard/FriendCard";
 
 
 
-
-type RequestListProps = {
-    user: {
-        username: string;
-        email: string;
-        userId: string;
-    }
-}
-
-export default function RequestList ({user}: RequestListProps) {
+export default function RequestList () {
 
     const getRecievedRequestsQuery= useQuery({
         queryKey: ['getRecievedRequests'],
@@ -40,7 +31,7 @@ export default function RequestList ({user}: RequestListProps) {
                             <LoaderCircle size={50} className="animate-spin" />
                         </div>
                     ) : (
-                        getRecievedRequestsQuery.data.map( (friend: {username: string, userId: string, email: string}) => (
+                        getRecievedRequestsQuery.data && getRecievedRequestsQuery.data.map( (friend: {username: string, userId: string, email: string}) => (
                             <FriendCard friend= {friend} key={friend.userId} type= {'recievedRequest'}/>
                         ) )
                     )
