@@ -7,7 +7,7 @@ export const useSocket= () => {
     const [socket, setSocket] = useState<WebSocket | null>(null)
     const user= useUserStore( (state) => state.user )
 
-    console.log(socket, "       ", user.userId)
+    // console.log(socket, "       ", user.userId)
     useEffect( () => {
         if (!user) {
             return
@@ -30,4 +30,5 @@ export const useSocket= () => {
         }
     }, [user] )
 
+    return socket
 }

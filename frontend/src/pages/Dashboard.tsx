@@ -29,7 +29,11 @@ export default function Dashboard() {
     return (
         <div className="flex w-full h-full max-h-screen overflow-hidden">
             <FriendsList user={user} type={"dashboard"} handleSelectFriend={handleSelectFriend} />
-            <ChatWindow selected= {selectedFriend}  />
+            {
+                selectedFriend.username && (
+                    <ChatWindow selected= {selectedFriend} socket={socket} />
+                )
+            }
         </div>
     )
 }

@@ -1,11 +1,14 @@
+import InRoomsList from "@/components/rooms/InRoomsList";
+import RoomRequestList from "@/components/rooms/RoomRequestList";
 
 
 
 export default function Rooms() {
 
     return (
-        <div className="bg-blue-500 w-2/6">
-            <h1>Rooms</h1>
+        <div className="grid grid-cols-2 p-5 gap-3">
+            <InRoomsList />
+            <RoomRequestList />
         </div>
     )
 }

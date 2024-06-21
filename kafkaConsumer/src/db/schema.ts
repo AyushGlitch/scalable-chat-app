@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { boolean, pgEnum, pgTable, primaryKey, serial, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, primaryKey, serial, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 
 export const userTable = pgTable( "userTable", {
@@ -18,8 +18,6 @@ export const userRelations = relations( userTable, ({many}) => ({
     roomMessages: many(roomMessagesTable),
     requestFriendee: many(friendsRequestTable, {relationName: 'friendee'}),
     requestFriends: many(friendsRequestTable, {relationName: 'friends'}),
-    roomRequestUser: many(roomRequestTable, {relationName: 'owner'}),
-    roomRequestFriend: many(roomRequestTable, {relationName: 'friends'}),
 }))
 
 
@@ -80,14 +78,12 @@ export const roomsTable = pgTable( "roomsTable", {
 export const roomsRelations= relations( roomsTable, ({many}) => ({
     usersToRooms: many(usersToRoomsTable),
     roomMessages: many(roomMessagesTable),
-    roomRequests: many(roomRequestTable),
 }) )
 
 
 export const usersToRoomsTable= pgTable( "usersToRoomsTable", {
     userId: uuid('userId').notNull().references(() => userTable.userId),
     roomId: uuid('roomId').notNull().references(() => roomsTable.roomId),
-    isAdmin: boolean('isAdmin').notNull().default(false)
 }, (t) => ({
     pk: primaryKey({columns: [t.userId, t.roomId]}),
 }) )
@@ -139,32 +135,5 @@ export const roomMessagesRelations= relations( roomMessagesTable, ({one}) => ({
     room: one(roomsTable, {
         fields: [roomMessagesTable.roomId],
         references: [roomsTable.roomId]
-    })
-}))
-
-
-export const roomRequestTable= pgTable("roomRequestTable", {
-    userId: uuid('userId').notNull().references(() => userTable.userId),
-    roomId: uuid('roomId').notNull().references(() => roomsTable.roomId),
-    friendId: uuid('friendId').notNull().references(() => userTable.userId),
-}, (t) => ({
-    pk: primaryKey({columns: [t.userId, t.roomId, t.friendId]}),
-}))
-
-
-export const roomRequestRelations= relations( roomRequestTable, ({one}) => ({
-    user: one(userTable, {
-        fields: [roomRequestTable.userId],
-        references: [userTable.userId],
-        relationName: 'owner',
-    }),
-    room: one(roomsTable, {
-        fields: [roomRequestTable.roomId],
-        references: [roomsTable.roomId]
-    }),
-    friend: one(userTable, {
-        fields: [roomRequestTable.friendId],
-        references: [userTable.userId],
-        relationName: 'friends',
     })
 }))

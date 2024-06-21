@@ -79,3 +79,35 @@ export const declineFriendRequest= async (data: {friendId: string}) => {
     console.log("Response: ", response.data)
     return response.data
 }
+
+
+export const getJoinedRooms= async () => {
+    const response= await axiosInstance.get('/api/rooms/joinedRooms', {withCredentials: true})
+    console.log("Response: ", response.data)
+    return response.data.rooms
+}
+
+
+export const createRoom= async (data: {roomName: string}) => {
+    console.log("Data: ", data)
+    const response= await axiosInstance.post('/api/rooms/createRoom', data, {withCredentials: true})
+    console.log("Response: ", response.data)
+    return response.data
+}
+
+
+export const getRoomInfo= async (data: {roomId: string}) => {
+    const response= await axiosInstance.get(`/api/rooms/roomInfo/${data.roomId}`, {withCredentials: true})
+    console.log("Response: ", response.data)
+    return response.data.info
+}
+
+
+export const sendJoinRoomRequest= async (data: {roomId: string, friendId: string}) => {
+    const response= await axiosInstance.post('/api/rooms/sendJoinRoomRequest', data, {withCredentials: true})
+    console.log("Response: ", response.data)
+    return response.data
+}
+
+
+// export const editRoom= async (data: {roomId: string}) => 

@@ -1,39 +1,79 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-
-type state= {
-    user: {
-        userId: string,
-        email: string,
-        username: string,
-    }
+type Message = {
+    from: string,
+    message: string,
+    time: string,
 }
 
-type userStoreType= {
+type RoomMessage = {
+    from: string,
+    fromName: string,
+    message: string,
+    time: string,
+}
+
+type state = {
     user: {
         userId: string,
         email: string,
         username: string,
     },
-    setUser: (newUser: state['user']) => void,
+    perChatMessages: {
+        [key: string]: Message[]
+    },
+    roomChatMessage: {
+        [key: string]: RoomMessage[]
+    },
 }
 
+type userStoreType = {
+    user: {
+        userId: string,
+        email: string,
+        username: string,
+    },
+    perChatMessages: {
+        [key: string]: Message[]
+    },
+    roomChatMessage: {
+        [key: string]: RoomMessage[]
+    },
+    setUser: (newUser: state['user']) => void,
+    setPerChatMessages: (newMessage: Message, selected: string) => void,
+    setRoomChatMessage: (newMessage: RoomMessage, selected: string) => void,
+}
 
-export const useUserStore= create<userStoreType>()( persist ( (set) => ({
+export const useUserStore = create<userStoreType>()(persist((set) => ({
     user: {
         userId: '',
         email: '',
         username: '',
     },
-    setUser: (newUser) => set( () => ({
-        user: {
-            userId: newUser.userId,
-            email: newUser.email,
-            username: newUser.username,
+    perChatMessages: {},
+    roomChatMessage: {},
+    setUser: (newUser) => set(() => ({
+        user: newUser
+    })),
+    setPerChatMessages: (newMessage, selected) => set((state) => ({
+        perChatMessages: {
+            ...state.perChatMessages,
+            [selected]: state.perChatMessages[selected]
+                ? [newMessage, ...state.perChatMessages[selected]]
+                : [newMessage]
         }
-    }) )
+    })),
+    setRoomChatMessage: (newMessage, selected) => set((state) => ({
+        roomChatMessage: {
+            ...state.roomChatMessage,
+            [selected]: state.roomChatMessage[selected]
+                ? [newMessage, ...state.roomChatMessage[selected]]
+                : [newMessage]
+        }
+    }))
 }), {
     name: 'userStore',
-} ) )
-
+    // Uncomment and configure the following line if you want to use a specific storage method
+    // storage: sessionStorage
+}));

@@ -97,7 +97,7 @@ export default function FriendsList({user, type, handleSelectFriend}: FriendsLis
 
 
     return (
-        <div className="bg-red-500 w-full min-h-screen py-5 flex flex-col">
+        <div className="bg-slate-700 w-full min-h-screen py-5 flex flex-col rounded-3xl">
             <h1 className="font-bold text-3xl text-center text-white underline">Search People</h1>
 
             <div className="flex w-full items-center space-x-2 p-3 mt-6">

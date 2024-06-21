@@ -6,6 +6,7 @@ import dotenv from "dotenv"
 import authRoutes from "./routes/authRoutes"
 import dashboardRoutes from "./routes/dashboardRoutes"
 import friendsRoutes from "./routes/friendsRoutes"
+import roomsRoutes from "./routes/roomRoutes"
 
 dotenv.config()
 const app= express()
@@ -29,3 +30,4 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/friends", friendsRoutes)
+app.use("/api/rooms", roomsRoutes)

@@ -14,7 +14,7 @@ export default function AlreadyFriends () {
 
 
     return (
-        <div className="bg-emerald-500 w-full min-h-screen py-5 flex flex-col">
+        <div className="bg-slate-600 w-full min-h-screen py-5 flex flex-col rounded-3xl">
             <h1 className="font-bold text-3xl text-center text-white underline">Friends List</h1>
 
             <div className="flex flex-col gap-3 mt-5">
