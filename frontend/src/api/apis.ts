@@ -130,3 +130,24 @@ export const leaveRoom= async (data: {roomId: string, isAdmin: boolean}) => {
     console.log("LeaveRoom Response: ", response.data)
     return response.data
 }
+
+
+export const removeMember= async (data: {roomId: string, friendId: string}) => {
+    const response= await axiosInstance.delete(`/api/rooms/removeMember/${data.roomId}/${data.friendId}`, {withCredentials: true})
+    console.log("RemoveMember Response: ", response.data)
+    return response.data
+}
+
+
+export const roomNameChange= async (data: {roomId:string, roomName: string}) => {
+    const response= await axiosInstance.put('/api/rooms/roomNameChange', data, {withCredentials: true})
+    console.log("RoomNameChange Response: ", response.data)
+    return response.data.result
+}
+
+
+export const declineRoomRequest= async (data: {senderId: string, roomId: string}) => {
+    const response= await axiosInstance.delete(`/api/rooms/declineRoomRequest/${data.senderId}/${data.roomId}`, {withCredentials: true})
+    console.log("DeclineFriendRequest Response: ", response.data)
+    return response.data
+}

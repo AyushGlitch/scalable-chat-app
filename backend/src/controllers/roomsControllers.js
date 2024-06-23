@@ -42,13 +42,13 @@ export const createRoom= async (req, res, next) => {
 
     try {
         const room = await dbClient.transaction( async (tx) => {
-            const roomInfo= await dbClient.insert(roomsTable)
+            const roomInfo= await tx.insert(roomsTable)
                                             .values({
                                                 roomName: roomName
                                             })
                                             .returning()
 
-            const userRoomInfo= await dbClient.insert(usersToRoomsTable)
+            const userRoomInfo= await tx.insert(usersToRoomsTable)
                                                 .values({
                                                     userId: userId,
                                                     roomId: roomInfo[0].roomId,
@@ -83,12 +83,12 @@ export const getRoomInfo= async (req, res, next) => {
 
     try {
         const info = await dbClient.select(
-            {
-                userId: userTable.userId,
-                userName: userTable.username,
-                email: userTable.email,
-            }
-        )
+                                        {
+                                            userId: userTable.userId,
+                                            username: userTable.username,
+                                            email: userTable.email,
+                                        }
+                                    )
                                     .from(usersToRoomsTable)
                                     .where(and( eq(usersToRoomsTable.roomId, roomId), ne(usersToRoomsTable.userId, userId) ))
                                     .innerJoin(userTable, eq(usersToRoomsTable.userId, userTable.userId))
@@ -184,7 +184,7 @@ export const acceptRoomRequest= async (req, res, next) => {
 
     try {
         const result= await dbClient.transaction( async (tx) => {
-            const roomsTableUpdate= await dbClient.insert(usersToRoomsTable)
+            const roomsTableUpdate= await tx.insert(usersToRoomsTable)
                                                     .values({
                                                         userId: userId,
                                                         roomId: roomId,
@@ -192,7 +192,7 @@ export const acceptRoomRequest= async (req, res, next) => {
                                                     })
                                                     .returning()
 
-            const roomRequestTableDelete= await dbClient.delete(roomRequestTable)
+            const roomRequestTableDelete= await tx.delete(roomRequestTable)
                                                         .where(and( eq(roomRequestTable.userId, senderId), eq(roomRequestTable.friendId, userId), eq(roomRequestTable.roomId, roomId)))
 
             return roomsTableUpdate
@@ -216,7 +216,9 @@ export const leaveRoom= async (req, res, next) => {
     const roomId= req.params.roomId
     const isAdmin= req.params.isAdmin
 
-    if (!roomId || !isAdmin) {
+    // console.log(userId,"    ", roomId," ", isAdmin, typeof(isAdmin) )
+
+    if (!roomId || isAdmin == undefined) {
         res.status(400).json({
             success: false,
             message: 'Please provide roomId & isAdmin'
@@ -225,12 +227,15 @@ export const leaveRoom= async (req, res, next) => {
     }
 
     try {
-        if (isAdmin) {
-            await dbClient.transaction( async (ts) => {
-                await dbClient.delete(usersToRoomsTable)
+        if (isAdmin === "true"){
+            await dbClient.transaction( async (tx) => {
+                await tx.delete(usersToRoomsTable)
                                 .where( eq(usersToRoomsTable.roomId, roomId))
+                                
+                await tx.delete(roomRequestTable)
+                                .where( eq(roomRequestTable.roomId, roomId))
 
-                await dbClient.delete(roomsTable)
+                await tx.delete(roomsTable)
                                 .where( eq(roomsTable.roomId, roomId))  
             })
 
@@ -240,7 +245,7 @@ export const leaveRoom= async (req, res, next) => {
             })
         }
 
-        else {
+        else if (isAdmin === "false") {
             await dbClient.delete(usersToRoomsTable)
                             .where(and( eq(usersToRoomsTable.userId, userId), eq(usersToRoomsTable.roomId, roomId)))
 
@@ -253,5 +258,97 @@ export const leaveRoom= async (req, res, next) => {
     catch(err) {
         console.log(err, 'Error in leaveRoom function')
         return next(errorHandler(500, 'Error in leaveRoom function'))
+    }
+}
+
+
+export const removeMember= async (req, res, next) => {
+    const userId= req.user.userId
+    const roomId= req.params.roomId
+    const memberId= req.params.friendId
+
+    if (!roomId || !memberId) {
+        res.status(400).json({
+            success: false,
+            message: 'Please provide roomId & memberId'
+        })
+        return
+    }
+
+    try {
+        await dbClient.delete(usersToRoomsTable)
+                        .where(and( eq(usersToRoomsTable.userId, memberId), eq(usersToRoomsTable.roomId, roomId)))
+
+        res.status(200).json({
+            success: true,
+            message: 'Member removed successfully'
+        })
+    }
+    catch(err) {
+        console.log(err, 'Error in removeMember function')
+        return next(errorHandler(500, 'Error in removeMember function'))
+    }
+}
+
+
+export const roomNameChange= async (req, res, next) => {
+    const userId= req.user.userId
+    const roomId= req.body.roomId
+    const roomName= req.body.roomName
+
+    if (!roomId || !roomName) {
+        res.status(400).json({
+            success: false,
+            message: 'Please provide roomId & roomName'
+        })
+        return
+    }
+
+    try {
+        const result= await dbClient.update(roomsTable)
+                        .set({
+                            roomName: roomName
+                        })
+                        .where( eq(roomsTable.roomId, roomId))
+                        .returning()
+
+        res.status(200).json({
+            success: true,
+            message: 'Room name changed successfully',
+            result
+        })
+    }
+    catch(err) {
+        console.log(err, 'Error in roomNameChange function')
+        return next(errorHandler(500, 'Error in roomNameChange function'))
+    }
+}
+
+
+export const declineRoomRequest= async (req, res, next) => {
+    const userId= req.user.userId
+    const senderId= req.params.senderId
+    const roomId= req.params.roomId
+
+    if (!senderId || !roomId) {
+        res.status(400).json({
+            success: false,
+            message: 'Please provide senderId & roomId'
+        })
+        return
+    }
+
+    try {
+        await dbClient.delete(roomRequestTable)
+                        .where(and( eq(roomRequestTable.userId, senderId), eq(roomRequestTable.friendId, userId), eq(roomRequestTable.roomId, roomId)))
+
+        res.status(200).json({
+            success: true,
+            message: 'Request declined successfully'
+        })
+    }
+    catch(err) {
+        console.log(err, 'Error in declineRoomRequest function')
+        return next(errorHandler(500, 'Error in declineRoomRequest function'))
     }
 }

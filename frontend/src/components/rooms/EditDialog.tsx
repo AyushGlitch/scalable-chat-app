@@ -1,9 +1,9 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { getAlreadyFriends, getRoomInfo, sendJoinRoomRequest } from "@/api/apis";
+import { getAlreadyFriends, getRoomInfo, removeMember, roomNameChange, sendJoinRoomRequest } from "@/api/apis";
 import { useState } from "react";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ type EditDialogProps = {
 
 export default function EditDialog( {roomId, roomName}: EditDialogProps ) {
     const [roomN, setRoomN] = useState<string>(roomName)
+    const queryClient= useQueryClient()
 
     const getRoomInfoQuery = useQuery({
         queryKey: ['roomInfo', roomId],
@@ -41,10 +42,47 @@ export default function EditDialog( {roomId, roomName}: EditDialogProps ) {
     })
 
 
+    const removeMemberQuery= useMutation({
+        mutationFn: (friendId: string) => removeMember({roomId, friendId}),
+        onSettled: (_, error) => {
+            if (!error) {
+                toast.success("Member removed successfully")
+                queryClient.invalidateQueries({ queryKey: ['roomInfo', roomId] })
+                queryClient.invalidateQueries({ queryKey: ['getAlreadyFriends'] })
+            }
+            else {
+                toast.error("Error removing member")
+            }
+        }
+    })
+
+
+    const handleRoomNameChangeQuery= useMutation({
+        mutationFn: () => roomNameChange({roomId, roomName: roomN}),
+        onSettled: (_, error) => {
+            if (!error) {
+                toast.success("Room name changed successfully")
+                queryClient.invalidateQueries({ queryKey: ['joinedRooms'] })
+            }
+            else {
+                toast.error("Error changing room name")
+            }
+        }
+    })
+
+
     function handleRoomRequest(friendId: string) {
         sendJoinRoomRequestQuery.mutate(friendId)
     }
 
+
+    function handleRemoveMember(friendId: string) {
+        removeMemberQuery.mutate(friendId)
+    }
+
+    function handleRoomNameChange() {
+        handleRoomNameChangeQuery.mutate()
+    }
 
     return (
             <Dialog>
@@ -67,9 +105,12 @@ export default function EditDialog( {roomId, roomName}: EditDialogProps ) {
                         <Input
                             id="name"
                             defaultValue={roomN}
-                            className="col-span-3 bg-slate-900"
+                            className="col-span-2 bg-slate-900"
                             onChange={(e) => setRoomN(e.target.value)}
                         />
+                        <Button variant={"outline"} size={"sm"} className="bg-blue-400 mx-3" onClick={handleRoomNameChange}>
+                            Save
+                        </Button>
 
                         <Label htmlFor="members" className="text-right text-base">
                             Members
@@ -79,17 +120,19 @@ export default function EditDialog( {roomId, roomName}: EditDialogProps ) {
                             <CommandList>
                                 <CommandEmpty className="text-base w-full text-center p-5">No Results</CommandEmpty>
                                 {
-                                    getRoomInfoQuery.data && getRoomInfoQuery.data.map( (friend: { email: string, username: string, userId: string }, i: number) => (
-                                        <CommandItem key={i} >
-                                            <div className=" flex w-full justify-between mx-3">
-                                                <h1>{friend.username}</h1>
-                                                <Button variant={'destructive'} size={"sm"}>
+                                    getRoomInfoQuery.data && getRoomInfoQuery.data.map((friend: { email: string, username: string, userId: string }, i: number) => (
+                                        <CommandItem key={i}>
+                                            <div className="flex justify-between px-1 w-full">
+                                                <div className="flex flex-col gap-2">
+                                                    <h1><span className="font-bold">Name: </span>{friend.username}</h1>
+                                                    <h1><span className="font-bold">Email: </span>{friend.email}</h1>
+                                                </div>
+                                                <Button variant={"destructive"} size={"sm"} onClick={() => handleRemoveMember(friend.userId)}>
                                                     Remove
                                                 </Button>
                                             </div>
-                                            <h1>{friend.email}</h1>
                                         </CommandItem>
-                                    ) )
+                                    ))
                                 }
                             </CommandList>
                         </Command>
@@ -102,19 +145,21 @@ export default function EditDialog( {roomId, roomName}: EditDialogProps ) {
                             <CommandList>
                                 <CommandEmpty className="text-base w-full text-center p-5">No Results</CommandEmpty>
                                 {
-                                    getAlreadyFriendsQuery.data && getAlreadyFriendsQuery.data.map( (friend: { email: string, username: string, userId: string }, i: number) => (
-                                        <CommandItem key={i} >
-                                            <div className="flex justify-between px-1 w-full">
-                                                <div className="flex flex-col gap-2">
-                                                    <h1><span className="font-bold">Name: </span>{friend.username}</h1>
-                                                    <h1><span className="font-bold">Email: </span>{friend.email}</h1>
+                                    getAlreadyFriendsQuery.data && getRoomInfoQuery.data && getAlreadyFriendsQuery.data
+                                        .filter((friend: { userId: string }) => !getRoomInfoQuery.data.some((roomFriend: { userId: string }) => roomFriend.userId === friend.userId))
+                                        .map((friend: { email: string, username: string, userId: string }, i: number) => (
+                                            <CommandItem key={i}>
+                                                <div className="flex justify-between px-1 w-full">
+                                                    <div className="flex flex-col gap-2">
+                                                        <h1><span className="font-bold">Name: </span>{friend.username}</h1>
+                                                        <h1><span className="font-bold">Email: </span>{friend.email}</h1>
+                                                    </div>
+                                                    <Button variant={"secondary"} size={"sm"} className="bg-emerald-500 my-auto" onClick={() => handleRoomRequest(friend.userId)}>
+                                                        Add
+                                                    </Button>
                                                 </div>
-                                                <Button variant={"secondary"} size={"sm"} className="bg-emerald-500 my-auto" onClick={() => handleRoomRequest(friend.userId)}>
-                                                    Add
-                                                </Button>
-                                            </div>
-                                        </CommandItem>
-                                    ) )
+                                            </CommandItem>
+                                        ))
                                 }
                             </CommandList>
                         </Command>

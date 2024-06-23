@@ -72,7 +72,7 @@ export const friendsRequestTableRelations= relations( friendsRequestTable, ({one
 
 
 export const roomsTable = pgTable( "roomsTable", {
-    roomId: uuid('roomId').defaultRandom().unique(),
+    roomId: uuid('roomId').defaultRandom().unique().primaryKey(),
     roomName: text('roomName').notNull(),
 } )
 

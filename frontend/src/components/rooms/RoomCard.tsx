@@ -3,7 +3,7 @@ import { Card } from "../ui/card"
 import { Button } from "../ui/button"
 import EditDialog from "./EditDialog"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { acceptRoomRequest, leaveRoom } from "@/api/apis"
+import { acceptRoomRequest, declineRoomRequest, leaveRoom } from "@/api/apis"
 import { toast } from "sonner"
 
 type RoomCardProps = {
@@ -49,6 +49,21 @@ const RoomCard = ({ roomId, roomName, isAdmin, type, userId, username, email }: 
             }
         }
     })
+
+
+    const declineRoomRequestQuery= useMutation({
+        mutationFn: () => declineRoomRequest({senderId: userId!, roomId: roomId}),
+        onSettled: (_, error) => {
+            if (!error) {
+                toast.success('Room request declined successfully')
+                queryClient.invalidateQueries({ queryKey: ['roomRequests'] })
+            }
+            else {
+                toast.error('Error declining room request')
+                console.log("Error: ", error)
+            }
+        }
+    })
     
 
     function handleAcceptRoomRequest () {
@@ -58,6 +73,11 @@ const RoomCard = ({ roomId, roomName, isAdmin, type, userId, username, email }: 
 
     function handleLeaveRoom () {
         leaveRoomQuery.mutate()
+    }
+
+
+    function handleDeclineRoomRequest () {
+        declineRoomRequestQuery.mutate()
     }
 
 
@@ -96,7 +116,7 @@ const RoomCard = ({ roomId, roomName, isAdmin, type, userId, username, email }: 
                                     <Button variant={'secondary'} size={"default"} className="bg-emerald-500" onClick={handleAcceptRoomRequest}>
                                         Accept
                                     </Button>
-                                    <Button variant={'destructive'} size={'default'}>
+                                    <Button variant={'destructive'} size={'default'} onClick={handleDeclineRoomRequest}>
                                         Decline
                                     </Button>
                                 </div>

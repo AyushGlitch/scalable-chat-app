@@ -97,7 +97,7 @@ const InRoomsList= () => {
             <div className="flex flex-col gap-5 w-full">
                 {
                     joinedRoomsQuery.data.length== 0 ? (
-                        <div className="text-xl font-bold">
+                        <div className="text-xl font-bold text-center">
                             No rooms joined
                         </div>
                     ) : (
