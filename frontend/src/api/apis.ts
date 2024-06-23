@@ -110,4 +110,23 @@ export const sendJoinRoomRequest= async (data: {roomId: string, friendId: string
 }
 
 
-// export const editRoom= async (data: {roomId: string}) => 
+export const getRoomRequests= async () => {
+    const response= await axiosInstance.get('/api/rooms/roomRequests', {withCredentials: true})
+    console.log("Response: ", response.data)
+    return response.data.requests
+}
+
+
+export const acceptRoomRequest= async (data: {senderId: string, roomId: string}) => {
+    const response= await axiosInstance.post('/api/rooms/acceptRequest', data, {withCredentials: true})
+    console.log(response)
+    return response.data.result
+}
+
+
+export const leaveRoom= async (data: {roomId: string, isAdmin: boolean}) => {
+    console.log("Data: ", data)
+    const response= await axiosInstance.delete(`/api/rooms/leaveRoom/${data.roomId}/${data.isAdmin}`, {withCredentials: true})
+    console.log("LeaveRoom Response: ", response.data)
+    return response.data
+}

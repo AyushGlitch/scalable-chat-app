@@ -139,3 +139,119 @@ export const sendJoinRoomRequest= async (req, res, next) => {
         return next(errorHandler(500, 'Error in sendJoinRoomRequest function'))
     }
 }
+
+
+export const getRoomRequests = async (req, res, next) => {
+    const userId= req.user.userId
+
+    try {
+        const requests= await dbClient.select({
+            userId: roomRequestTable.userId,
+            username: userTable.username,
+            roomId: roomRequestTable.roomId,
+            roomName: roomsTable.roomName,
+            email: userTable.email
+        })
+                                        .from(roomRequestTable)
+                                        .innerJoin(userTable, eq(roomRequestTable.userId, userTable.userId))
+                                        .innerJoin(roomsTable, eq(roomRequestTable.roomId, roomsTable.roomId))
+                                        .where(eq(roomRequestTable.friendId, userId))
+        
+        res.status(200).json({
+            success: true,
+            requests
+        })
+    }
+    catch(err) {
+        console.log(err, 'Error in getRoomRequests function')
+        return next(errorHandler(500, 'Error in getRoomRequests function'))
+    }
+}
+
+
+export const acceptRoomRequest= async (req, res, next) => {
+    const userId= req.user.userId
+    const senderId= req.body.senderId
+    const roomId= req.body.roomId
+
+    if (!senderId || !roomId) {
+        res.status(400).json({
+            success: false,
+            message: 'Please provide senderId and roomId'
+        })
+        return
+    }
+
+    try {
+        const result= await dbClient.transaction( async (tx) => {
+            const roomsTableUpdate= await dbClient.insert(usersToRoomsTable)
+                                                    .values({
+                                                        userId: userId,
+                                                        roomId: roomId,
+                                                        isAdmin: false
+                                                    })
+                                                    .returning()
+
+            const roomRequestTableDelete= await dbClient.delete(roomRequestTable)
+                                                        .where(and( eq(roomRequestTable.userId, senderId), eq(roomRequestTable.friendId, userId), eq(roomRequestTable.roomId, roomId)))
+
+            return roomsTableUpdate
+        } )
+
+        res.status(200).json({
+            success: true,
+            message: 'Request accepted successfully',
+            result
+        })
+    }
+    catch(err) {
+        console.log(err, 'Error in acceptRoomRequest function')
+        return next(errorHandler(500, 'Error in acceptRoomRequest function'))
+    }
+}
+
+
+export const leaveRoom= async (req, res, next) => {
+    const userId= req.user.userId
+    const roomId= req.params.roomId
+    const isAdmin= req.params.isAdmin
+
+    if (!roomId || !isAdmin) {
+        res.status(400).json({
+            success: false,
+            message: 'Please provide roomId & isAdmin'
+        })
+        return
+    }
+
+    try {
+        if (isAdmin) {
+            await dbClient.transaction( async (ts) => {
+                await dbClient.delete(usersToRoomsTable)
+                                .where( eq(usersToRoomsTable.roomId, roomId))
+
+                await dbClient.delete(roomsTable)
+                                .where( eq(roomsTable.roomId, roomId))  
+            })
+
+            res.status(200).json({
+                success: true,
+                message: 'Room deleted successfully'
+            })
+        }
+
+        else {
+            await dbClient.delete(usersToRoomsTable)
+                            .where(and( eq(usersToRoomsTable.userId, userId), eq(usersToRoomsTable.roomId, roomId)))
+
+            res.status(200).json({
+                success: true,
+                message: 'Left room successfully'
+            })
+        }
+    }
+    catch(err) {
+        console.log(err, 'Error in leaveRoom function')
+        return next(errorHandler(500, 'Error in leaveRoom function'))
+    }
+}

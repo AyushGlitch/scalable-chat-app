@@ -58,7 +58,7 @@ const InRoomsList= () => {
 
 
     return (
-        <div className="bg-red-400 rounded-3xl p-3 flex flex-col justify-center items-center gap-5">
+        <div className="bg-red-400 rounded-3xl p-3 flex flex-col items-center gap-5">
             <h1 className="text-2xl font-semibold underline">Rooms Joined</h1>
 
             <Dialog>
