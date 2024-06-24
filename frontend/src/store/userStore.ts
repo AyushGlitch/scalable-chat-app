@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 type Message = {
     from: string,
@@ -42,6 +42,8 @@ type userStoreType = {
     setUser: (newUser: state['user']) => void,
     setPerChatMessages: (newMessage: Message, selected: string) => void,
     setRoomChatMessage: (newMessage: RoomMessage, selected: string) => void,
+    setSavedPerChats: (Messages: Message[], selected: string) => void,
+    setSavedRoomChats: (Messages: RoomMessage[], selected: string) => void,
 }
 
 export const useUserStore = create<userStoreType>()(persist((set) => ({
@@ -70,9 +72,21 @@ export const useUserStore = create<userStoreType>()(persist((set) => ({
                 ? [newMessage, ...state.roomChatMessage[selected]]
                 : [newMessage]
         }
-    }))
+    })),
+    setSavedPerChats: (Messages, selected) => set( (state) => ({
+        perChatMessages: {
+            ...state.perChatMessages,
+            [selected]: Messages
+        }
+    }) ),
+    setSavedRoomChats: (Messages, selected) => set( (state) =>({
+        roomChatMessage: {
+            ...state.roomChatMessage,
+            [selected]: Messages
+        }
+    }) )
 }), {
     name: 'userStore',
-    // Uncomment and configure the following line if you want to use a specific storage method
-    // storage: sessionStorage
+    storage: createJSONStorage(() => sessionStorage)
+    
 }));

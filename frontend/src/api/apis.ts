@@ -151,3 +151,10 @@ export const declineRoomRequest= async (data: {senderId: string, roomId: string}
     console.log("DeclineFriendRequest Response: ", response.data)
     return response.data
 }
+
+
+export const getSavedMessages= async () => {
+    const response= await axiosInstance.get('/api/dashboard/getSavedMessages', {withCredentials: true})
+    console.log("SavedMessages Response: ", response.data)
+    return response.data
+}
