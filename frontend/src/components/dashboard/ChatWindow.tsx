@@ -12,7 +12,8 @@ type UserType= {
 
 type RoomType= {
     roomName: string,
-    roomId: string
+    roomId: string,
+    isAdmin: boolean
 }
 
 

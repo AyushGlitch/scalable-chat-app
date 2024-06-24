@@ -2,10 +2,26 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { getAlreadyFriends, searchFriends } from "@/api/apis";
+import { getAlreadyFriends, getJoinedRooms, searchFriends } from "@/api/apis";
 import { LoaderCircle} from "lucide-react"
 import FriendCard from "./FriendCard";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "../ui/command";
+import { CommandGroup } from "cmdk";
+
+
+type SelectedFriendType = {
+    username: string,
+    email: string,
+    userId: string
+}
+
+type SelectedRoomType = {
+    roomName: string,
+    roomId: string,
+    isAdmin: boolean
+}
+
+type SelectedType = SelectedFriendType | SelectedRoomType
 
 
 type FriendsListPropsType= {
@@ -15,7 +31,7 @@ type FriendsListPropsType= {
         userId: string
     }
     type :string
-    handleSelectFriend?: (friend: {email: string, username: string, userId: string}) => void
+    handleSelectFriend: (selection: SelectedType) => void
 }
 
 
@@ -28,13 +44,20 @@ export default function FriendsList({user, type, handleSelectFriend}: FriendsLis
             queryFn: () => getAlreadyFriends()
         })
 
-        if (getAlreadyFriendsQuery.isFetching) {
+
+        const joinedRoomsQuery= useQuery({
+            queryKey: ['joinedRooms'],
+            queryFn: () => getJoinedRooms()
+        })
+
+        if (getAlreadyFriendsQuery.isFetching || joinedRoomsQuery.isFetching) {
             return (
                 <div className="flex w-full justify-center items-center">
                     <LoaderCircle size={50} className="animate-spin" />
                 </div>
             )
         }
+        
 
         return (
             <div className="w-2/6 min-h-screen py-5 flex flex-col">
@@ -42,17 +65,35 @@ export default function FriendsList({user, type, handleSelectFriend}: FriendsLis
                     <CommandInput placeholder="Search" className="text-xl h-14" />
                     <CommandList>
                         <CommandEmpty className="text-2xl w-full text-center p-10">No Results</CommandEmpty>
-                        {
-                            getAlreadyFriendsQuery.isFetched && getAlreadyFriendsQuery.data.map( (friend: { email: string, username: string, userId: string }, i: number) => (
-                                friend.email != user.email &&
-                                <CommandItem key={i} >
-                                    <div className="text-lg flex w-full justify-between mx-3" onClick={() => handleSelectFriend!(friend)}>
-                                        <h1>{friend.username}</h1>
-                                        <h1>{friend.email.slice(0,10) + '...'}</h1>
-                                    </div>
-                                </CommandItem>
-                            ) )
-                        }
+                        <CommandGroup heading="Individuals" className="text-xl font-semibold my-3 mx-3" >
+                            {
+                                getAlreadyFriendsQuery.isFetched && getAlreadyFriendsQuery.data.map( (friend: SelectedFriendType, i: number) => (
+                                    friend.email != user.email &&
+                                    <CommandItem key={i} >
+                                        <div className="text-lg font-normal flex w-full justify-between mx-3" onClick={() => handleSelectFriend!(friend)}>
+                                            <h1>{friend.username}</h1>
+                                            <h1>{friend.email.slice(0,10) + '...'}</h1>
+                                        </div>
+                                    </CommandItem>
+                                ) )
+                            }
+                        </CommandGroup>
+
+                        <CommandGroup heading="Rooms" className="text-xl font-semibold my-3 mx-3" >
+                            {
+                                joinedRoomsQuery.isFetched && joinedRoomsQuery.data.map( (room: SelectedRoomType, i: number) => (
+                                    <CommandItem key={i} >
+                                        <div className="text-lg font-normal flex w-full justify-between mx-3" onClick={() => handleSelectFriend(room)}>
+                                            <h1>{room.roomName}</h1>
+                                            <h1>{room.isAdmin && (
+                                                    <span className="text-emerald-600 font-semibold">Admin</span>
+                                                )}
+                                            </h1>
+                                        </div>
+                                    </CommandItem>
+                                ) )
+                            }
+                        </CommandGroup>
                     </CommandList>
                 </Command>
             </div>

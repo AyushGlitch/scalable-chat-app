@@ -111,6 +111,7 @@ export const personalMessagesTable= pgTable("personalMessagesTable", {
     toId: uuid('toId'),
     perMessage: text('perMessage'),
     sentAt: text('sendAt'),
+    createdAt: timestamp('createdAt', {mode: 'string'}).notNull().defaultNow()
 })
 
 
@@ -128,6 +129,7 @@ export const roomMessagesTable= pgTable("roomMessagesTable", {
     roomId: uuid('roomId'),
     roomMessage: text('roomMessage'),
     sentAt: text('sendAt'),
+    createdAt: timestamp('createdAt', {mode: 'string'}).notNull().defaultNow()
 })
 
 

@@ -5,33 +5,38 @@ import { useUserStore } from "@/store/userStore"
 import { useState } from "react"
 
 
-type selectedFriendType= {
+type SelectedFriendType = {
     username: string,
     email: string,
     userId: string
 }
 
+type SelectedRoomType = {
+    roomName: string,
+    roomId: string,
+    isAdmin: boolean
+}
+
+type SelectedType = SelectedFriendType | SelectedRoomType
+
 
 export default function Dashboard() {
     const socket= useSocket()
     const user= useUserStore( (state) => state.user )
-    const [selectedFriend, setSelectedFriend]= useState<selectedFriendType>({
-        username: '',
-        email: '',
-        userId: ''
-    })
+    const [selected, setSelected] = useState<SelectedType | null>(null)
+    console.log(selected)
 
-
-    const handleSelectFriend= (friend: {username: string, email: string, userId: string}) => {
-        setSelectedFriend(friend)
+    
+    const handleSelectFriend = (selection: SelectedType) => {
+        setSelected(selection)
     }
 
     return (
         <div className="flex w-full h-full max-h-screen overflow-hidden">
             <FriendsList user={user} type={"dashboard"} handleSelectFriend={handleSelectFriend} />
             {
-                selectedFriend.username && (
-                    <ChatWindow selected= {selectedFriend} socket={socket} />
+                selected && (
+                    <ChatWindow selected= {selected} socket={socket} />
                 )
             }
         </div>

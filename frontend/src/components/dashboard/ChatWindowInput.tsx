@@ -11,7 +11,8 @@ type UserType= {
 
 type RoomType= {
     roomName: string,
-    roomId: string
+    roomId: string,
+    isAdmin: boolean
 }
 
 type ChatWindowInputPropsType= {
@@ -28,6 +29,9 @@ function ChatWindowInput ({socket, selected}: ChatWindowInputPropsType) {
     let setChatMessages: any;
     if ('userId' in selected) {
         setChatMessages= useUserStore( (state) => state.setPerChatMessages )
+    }
+    else if ('roomId' in selected) {
+        setChatMessages= useUserStore( (state) => state.setRoomChatMessage )
     }
 
     function handleClick() {
@@ -63,6 +67,15 @@ function ChatWindowInput ({socket, selected}: ChatWindowInputPropsType) {
                 message: message,
                 time: time+" "+dateStr
             }))
+
+            const newMessage= {
+                from: user.userId,
+                roomId: selected.roomId,
+                message: message,
+                time: time+" "+dateStr
+            }
+            setChatMessages(newMessage, selected.roomId)
+            console.log("Message sent: ", newMessage)
         }
 
         setMessage('')
