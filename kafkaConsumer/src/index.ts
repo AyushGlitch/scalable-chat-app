@@ -1,7 +1,7 @@
 import { Kafka } from "kafkajs"
 import { Pool } from "pg"
 import { dbClient } from "./db/drizzle"
-import { personalMessagesTable } from "./db/schema"
+import { personalMessagesTable, roomMessagesTable } from "./db/schema"
 
 
 const kafka= new Kafka({
@@ -49,13 +49,33 @@ const run = async () => {
                     console.log("Error inserting personal message into database: ", err)
                     pause();
                     setTimeout(() => {
-                        consumer.resume([{ topic: "MESSAGES" }]);
+                        consumer.resume([{ topic: topics[0] }]);
                     }, 60 * 1000);
                 }
             }
 
             else if (topic == topics[1]) {
+                const from: string= data.from.userId
+                const roomId: string= data.roomId
+                const message: string= data.message
+                const time: string= data.time
 
+                try {
+                    await dbClient.insert(roomMessagesTable).values({
+                        fromId: from,
+                        roomId: roomId,
+                        roomMessage: message,
+                        sentAt: time
+                    })
+                    console.log("Inserted room message into database")
+                }
+                catch (err) {
+                    console.log("Error inserting personal message into database: ", err)
+                    pause();
+                    setTimeout(() => {
+                        consumer.resume([{ topic: topics[1] }]);
+                    }, 60 * 1000);
+                }
             }
         },
     })
