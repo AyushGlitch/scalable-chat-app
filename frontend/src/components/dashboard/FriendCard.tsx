@@ -73,8 +73,8 @@ export default function FriendCard({friend, type}: FriendCardPropsType) {
     }
 
     return (
-        <div className="flex justify-evenly items-center w-full my-5">
-            <Card className="w-5/6 p-3">                 
+        <div className="flex justify-evenly items-center w-full">
+            <Card className="w-5/6 p-3 bg-zinc-600 text-white">                 
                 <div className="flex justify-between">
                     <div>
                         <p><span className="font-medium">Name:</span> {friend.username}</p>

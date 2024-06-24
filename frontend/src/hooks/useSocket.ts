@@ -1,26 +1,38 @@
+import { getJoinedRooms } from "@/api/apis"
 import { useUserStore } from "@/store/userStore"
+import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 
-
-
-export const useSocket= () => {
+export const useSocket = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null)
-    const user= useUserStore( (state) => state.user )
+    const user = useUserStore((state) => state.user)
+    
+    const { data: joinedRoomsData, isFetched } = useQuery({
+        queryKey: ['joinedRooms'],
+        queryFn: getJoinedRooms,
+        enabled: !!user // Ensure the query only runs if the user is available
+    })
 
-    // console.log(socket, "       ", user.userId)
-    useEffect( () => {
-        if (!user) {
+    const joinedRooms = isFetched ? joinedRoomsData.map((room: any) => room.roomId) : []
+
+    useEffect(() => {
+        if (!user || !user.userId) {
             return
         }
 
-        const ws= new WebSocket(`ws://localhost:8080?userId=${user.userId}`)
+        const ws = new WebSocket(`ws://localhost:8080?userId=${user.userId}`)
 
-        ws.onopen= () => {
+        ws.onopen = () => {
             console.log("Connected")
             setSocket(ws)
+
+            ws.send(JSON.stringify({
+                type: 'joinRooms',
+                rooms: joinedRooms
+            }))
         }
 
-        ws.onclose= () => {
+        ws.onclose = () => {
             console.log("Disconnected")
             setSocket(null)
         }
@@ -28,7 +40,7 @@ export const useSocket= () => {
         return () => {
             ws.close()
         }
-    }, [user] )
+    }, [user, joinedRoomsData])
 
     return socket
 }

@@ -61,7 +61,7 @@ export default function FriendsList({user, type, handleSelectFriend}: FriendsLis
 
         return (
             <div className="w-2/6 min-h-screen py-5 flex flex-col">
-                <Command className="w-11/12 mx-auto bg-slate-400 text-zinc-900">
+                <Command className="w-11/12 mx-auto bg-slate-700 text-slate-300">
                     <CommandInput placeholder="Search" className="text-xl h-14" />
                     <CommandList>
                         <CommandEmpty className="text-2xl w-full text-center p-10">No Results</CommandEmpty>
@@ -141,7 +141,7 @@ export default function FriendsList({user, type, handleSelectFriend}: FriendsLis
         <div className="bg-slate-700 w-full min-h-screen py-5 flex flex-col rounded-3xl">
             <h1 className="font-bold text-3xl text-center text-white underline">Search People</h1>
 
-            <div className="flex w-full items-center space-x-2 p-3 mt-6">
+            <div className="flex w-full items-center space-x-2 p-3 mt-6 mb-5">
                 <Input type="text" placeholder="Search for a friend..." value={searchBar} onChange={(e) => setSearchBar(e.target.value)}/>
                 <Button type="submit" onClick={handleSearch}>Search</Button>
             </div>

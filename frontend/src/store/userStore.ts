@@ -9,7 +9,6 @@ type Message = {
 
 type RoomMessage = {
     from: string,
-    fromName: string,
     message: string,
     time: string,
 }

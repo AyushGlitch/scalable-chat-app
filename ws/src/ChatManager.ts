@@ -41,6 +41,13 @@ export class ChatManager {
             const message= JSON.parse(data.toString())
 
             switch (message.type) {
+                case 'joinRooms':
+                    message.rooms.forEach(  (roomId: string) => {
+                        socketManager.addUserToRoom(roomId, user)
+                    })
+                    console.log("User joined rooms: ", message.rooms)
+                    break
+
                 case 'personalMessage':
                     const to= this.usersMap.get(message.to)
 

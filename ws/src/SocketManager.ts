@@ -73,7 +73,7 @@ export class SocketManager {
             this.addUserToRoom(roomId, from)
         }
 
-        room?.forEach( (user) => {
+        room!.forEach( (user) => {
             if (user.userId !== from.userId) {
                 user.socket.send(message)
             }

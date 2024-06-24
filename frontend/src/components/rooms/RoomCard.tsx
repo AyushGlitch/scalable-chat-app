@@ -84,7 +84,7 @@ const RoomCard = ({ roomId, roomName, isAdmin, type, userId, username, email }: 
 
     return (
         <div className="flex justify-evenly items-center w-full">
-            <Card className="w-5/6 p-3">
+            <Card className="w-5/6 p-3 bg-zinc-700 text-white">
                 <div className="flex justify-between">
                     
                         {

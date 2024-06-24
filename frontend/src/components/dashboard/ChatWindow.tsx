@@ -25,6 +25,7 @@ type ChatWindowPropsType= {
 
 function ChatWindow({selected, socket}: ChatWindowPropsType) {
     const setPerChatMessages= useUserStore(  (state) => state.setPerChatMessages)
+    const setRoomChatMessages= useUserStore( (state) => state.setRoomChatMessage)
 
     useEffect( () => {
         if (!socket) {
@@ -41,16 +42,23 @@ function ChatWindow({selected, socket}: ChatWindowPropsType) {
                         message: data.message,
                         time: data.time
                     }
-                    if ('userId' in selected) {
-                        setPerChatMessages(newMessage, data.from)
-                    }
+                    setPerChatMessages(newMessage, data.from)
+                    
                     console.log(`From: ${data.from}`)
                     console.log(`Message: ${data.message}`)
                     console.log(`Time: ${data.time}`)
                     break
 
                 case 'roomMessage':
-                    console.log(`Message: ${data.message}`)
+                    const newRoomMessage= {
+                        from: data.from,
+                        roomId: data.roomId,
+                        message: data.message,
+                        time: data.time
+                    }
+                    setRoomChatMessages(newRoomMessage, data.roomId)
+                    console.log("Store RoomChats: ", newRoomMessage, "Selected: ", data.roomId)
+                    // console.log(`Message: ${data.message}`)
                     break
             }
         }

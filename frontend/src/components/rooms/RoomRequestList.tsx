@@ -14,7 +14,7 @@ const RoomRequestList= () => {
 
 
     return (
-        <div className="bg-orange-400 rounded-3xl p-3 flex flex-col items-center gap-5">
+        <div className="bg-zinc-800 rounded-3xl p-3 flex flex-col items-center gap-5 text-white">
             <h1 className="text-2xl font-semibold underline">Room Request List</h1>
 
             <div className="flex flex-col gap-5 w-full mt-5">

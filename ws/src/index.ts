@@ -45,7 +45,8 @@ async function initRedis() {
             case 'roomMessage':
                 const roomMessToSend= JSON.stringify({
                     type: 'roomMessage',
-                    from: data.from,
+                    from: data.from.userId,
+                    roomId: data.roomId,
                     message: data.message,
                     time: data.time
                 })
