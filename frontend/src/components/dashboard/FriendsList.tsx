@@ -31,7 +31,7 @@ type FriendsListPropsType= {
         userId: string
     }
     type :string
-    handleSelectFriend: (selection: SelectedType) => void
+    handleSelectFriend?: (selection: SelectedType) => void
 }
 
 
@@ -83,7 +83,7 @@ export default function FriendsList({user, type, handleSelectFriend}: FriendsLis
                             {
                                 joinedRoomsQuery.isFetched && joinedRoomsQuery.data.map( (room: SelectedRoomType, i: number) => (
                                     <CommandItem key={i} >
-                                        <div className="text-lg font-normal flex w-full justify-between mx-3" onClick={() => handleSelectFriend(room)}>
+                                        <div className="text-lg font-normal flex w-full justify-between mx-3" onClick={() => handleSelectFriend!(room)}>
                                             <h1>{room.roomName}</h1>
                                             <h1>{room.isAdmin && (
                                                     <span className="text-emerald-600 font-semibold">Admin</span>

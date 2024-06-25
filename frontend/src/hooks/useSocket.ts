@@ -20,7 +20,7 @@ export const useSocket = () => {
             return
         }
 
-        const ws = new WebSocket(`ws://localhost:8080?userId=${user.userId}`)
+        const ws = new WebSocket(`${import.meta.env.VITE_WS_URL}?userId=${user.userId}`)
 
         ws.onopen = () => {
             console.log("Connected")

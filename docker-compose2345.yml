@@ -5,6 +5,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - chatapp-network
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -19,7 +21,9 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  
+    networks:
+      - chatapp-network
+
   postgres:
     image: postgres:latest
     environment:
@@ -30,46 +34,57 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - chatapp-network
 
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+    networks:
+      - chatapp-network
 
-  # backend:
-  #   build: ./backend
-  #   environment:
-  #     DATABASE_URL: "postgresql://admin:admin12345@postgres:5432/chat-app?ssl=false"
-  #     JWT: "secret"
-  #     BACKEND_PORT: 3000
-  #     FRONTEND_PORT: 5173
-  #     FRONTEND_URL: "http://localhost:5173"
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - postgres
-  #   volumes:
-  #     - ./backend:/app
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: "postgresql://admin:admin12345@postgres:5432/chat-app?ssl=false"
+      JWT: "secret" # Consider using Docker secrets for sensitive data
+      BACKEND_PORT: 3000
+      FRONTEND_PORT: 5173
+      FRONTEND_URL: "http://frontend:5173"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app
+    networks:
+      - chatapp-network
 
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "5173:5173"
-  #   environment:
-  #     VITE_BACKEND_URL: http://localhost:3000
-  #     VITE_WS_URL: ws://localhost:8080
-  #   volumes:
-  #     - ./frontend:/app
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_BACKEND_URL: http://backend:3000
+      VITE_WS_URL: ws://ws:8080
+    volumes:
+      - ./frontend:/app
+    networks:
+      - chatapp-network
 
-  # ws:
-  #   build: ./ws
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     WS_URL: "http://localhost:8080"
-  #     KAFKA_BROKER: "kafka:29092"
-  #   volumes:
-  #     - ./ws:/app
+  ws:
+    build: ./ws
+    ports:
+      - "8080:8080"
+    environment:
+      WS_URL: "http://ws:8080"
+      KAFKA_BROKER: "kafka:29092"
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./ws:/app
+    networks:
+      - chatapp-network
 
   kafka-consumer:
     build: ./kafka-consumer
@@ -81,7 +96,11 @@ services:
       - postgres
     volumes:
       - ./kafka-consumer:/app
-
+    networks:
+      - chatapp-network
 
 volumes:
   pgdata:
+
+networks:
+  chatapp-network:

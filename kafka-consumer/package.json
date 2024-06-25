@@ -4,19 +4,21 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx ./src/index.ts --watch"
+    "dev": "tsx watch ./src/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
     "kafkajs": "^2.2.4",
     "pg": "^8.12.0",
     "postgres": "^3.4.4"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/pg": "^8.11.6",
     "drizzle-kit": "^0.22.7",
     "tsx": "^4.15.6"

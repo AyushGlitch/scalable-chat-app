@@ -11,15 +11,21 @@ import roomsRoutes from "./routes/roomRoutes"
 dotenv.config()
 const app= express()
 
+// {
+//     origin: process.env.FRONTEND_URL, // Allow only this origin
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow these HTTP methods
+//     credentials: true, // Allow cookies to be sent
+// }
+
 app.use(cors({
-    origin: 'http://localhost:5173', // Allow only this origin
+    origin: process.env.FRONTEND_URL, // Allow only this origin
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allow these HTTP methods
     credentials: true, // Allow cookies to be sent
 }))
 app.use(express.json())
 app.use(cookieParser())
 
-app.listen(process.env.BACKEND_PORT, () => {
+app.listen(3000, () => {
     console.log(`Server is running on port ${process.env.BACKEND_PORT}`)
 })
 

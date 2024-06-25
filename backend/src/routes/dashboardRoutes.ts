@@ -1,5 +1,5 @@
 import express from "express"
-import { getFriends, getSavedMessages } from "../controllers/dashboardController.js"
+import { getFriends, getSavedMessages } from "../controllers/dashboardController"
 import { verifyUser } from '../utils/verifyUser.js';
 
 

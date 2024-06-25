@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyUser } from "../utils/verifyUser";
-import { getJoinedRooms, createRoom, getRoomInfo, sendJoinRoomRequest, getRoomRequests, acceptRoomRequest, leaveRoom, removeMember, roomNameChange, declineRoomRequest } from "../controllers/roomsControllers.js"
+import { getJoinedRooms, createRoom, getRoomInfo, sendJoinRoomRequest, getRoomRequests, acceptRoomRequest, leaveRoom, removeMember, roomNameChange, declineRoomRequest } from "../controllers/roomsControllers"
 
 
 const router= Router()

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button } from "../ui/button"
 import { Card} from "../ui/card"
 import { acceptFriendRequest, declineFriendRequest, removeFriendQuery, sendFriendRequest } from "@/api/apis"
+import { toast } from "sonner"
 
 
 type FriendCardPropsType= {
@@ -22,6 +23,7 @@ export default function FriendCard({friend, type}: FriendCardPropsType) {
         onSettled: (_, error) => {
             if (!error) {
                 queryClient.invalidateQueries({queryKey: ['getAlreadyFriends']})
+                toast.error('Friend Removed')
             }
         }
     })
@@ -29,8 +31,11 @@ export default function FriendCard({friend, type}: FriendCardPropsType) {
     
     const sendFriendRequestQuery= useMutation({
         mutationFn: () => sendFriendRequest({friendId: friend.userId}),
-        onSettled: () => {
+        onSettled: (_, error) => {
             // queryClient.invalidateQueries({queryKey: ['getRecievedRequests']})
+            if (!error) {
+                toast.success('Friend Request Sent')
+            }
         }
     })
 
@@ -41,6 +46,7 @@ export default function FriendCard({friend, type}: FriendCardPropsType) {
             if (!error) {
                 queryClient.invalidateQueries({queryKey: ['getAlreadyFriends']})
                 queryClient.invalidateQueries({queryKey: ['getRecievedRequests']})
+                toast.success('Friend Request Accepted')
             }
         }
     })
@@ -51,6 +57,7 @@ export default function FriendCard({friend, type}: FriendCardPropsType) {
         onSettled: (_, error) => {
             if (!error) {
                 queryClient.invalidateQueries({queryKey: ['getRecievedRequests']})
+                toast.error('Friend Request Declined')
             }
         }
     } )

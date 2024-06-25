@@ -53,11 +53,11 @@ export class SocketManager {
     }
 
 
-    public sendPrivateMessage (to: User, from: User, message: string) {
-        const toSocket= this.usersMap.get(to.userId)
+    public sendPrivateMessage (to: string, from: User, message: string) {
+        const toSocket= this.usersMap.get(to)
 
         if (!toSocket) {
-            console.log(`User ${to.userId} is not connected`)
+            console.log(`User ${to} is not connected`)
             return
         }
         else {

@@ -49,12 +49,12 @@ export class ChatManager {
                     break
 
                 case 'personalMessage':
-                    const to= this.usersMap.get(message.to)
+                    const to= message.to
 
-                    if (!to) {
-                        console.log(`User ${message.to} is not connected`)
-                        return
-                    }
+                    // if (!to) {
+                    //     console.log(`User ${message.to} is not connected`)
+                    //     return
+                    // }
 
                     const newPerMessage= {
                         type: 'personalMessage',
@@ -72,7 +72,7 @@ export class ChatManager {
                             value: JSON.stringify(newPerMessage)
                         }]
                     })
-                    console.log("Sent personal message to Kafka: ", [user.userId, to.userId, message.message, message.time])
+                    console.log("Sent personal message to Kafka: ", [user.userId, to, message.message, message.time])
 
                     // socketManager.sendPrivateMessage(to, user, JSON.stringify({
                     //     type: 'personalMessage',

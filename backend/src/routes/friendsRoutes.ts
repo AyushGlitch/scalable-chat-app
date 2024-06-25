@@ -1,5 +1,5 @@
 import expres from 'express';
-import { searchFriends, getAlreadyFriends, sendFriendRequest, getRecievedRequests, removeFriend , acceptFriendRequest, declineFriendRequest} from '../controllers/friendsControllers.js'
+import { searchFriends, getAlreadyFriends, sendFriendRequest, getRecievedRequests, removeFriend , acceptFriendRequest, declineFriendRequest} from '../controllers/friendsControllers'
 import { verifyUser } from '../utils/verifyUser.js';
 
 

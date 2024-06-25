@@ -12,13 +12,16 @@ export default function Navbar () {
     const currPath= location.pathname
 
     const handleClick = () => {
-        // useUserStore.setState( () => ({
-        //     user: {
-        //         userId: '',
-        //         email: '',
-        //         username: '',
-        //     }
-        // }) )
+        useUserStore.setState( () => ({
+            user: {
+                userId: '',
+                email: '',
+                username: '',
+            }
+        }) )
+        useUserStore.setState( () => ({
+            
+        }) )
     }
 
     const links= [

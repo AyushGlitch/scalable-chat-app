@@ -1,9 +1,10 @@
-
+import dotenv from 'dotenv';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from "postgres";
 
+dotenv.config();
 
-const queryClient = postgres("postgresql://admin:admin12345@localhost:5432/chat-app");
+const queryClient = postgres(process.env.DATABASE_URL!);
 export const dbClient = drizzle(queryClient);
 
 // dbClient.(personalMessagesTable)

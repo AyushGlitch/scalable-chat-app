@@ -5,17 +5,29 @@ import { User, socketManager } from "./SocketManager";
 import { createClient } from "redis"
 import { Kafka } from "kafkajs";
 import { Partitioners } from "kafkajs";
+import dotenv from 'dotenv'
 
-const wss= new WebSocketServer({ port: 8080 });
+dotenv.config()
+
+const wsPort = parseInt(process.env.WS_PORT || '8080', 10);
+const wss= new WebSocketServer({ port: wsPort });
 
 
 const redisPublisher= createClient()
 const redisSubscriber= createClient()
 
+// const redisPublisher = createClient({
+//     url: process.env.REDIS_URL
+// });
+
+// const redisSubscriber = createClient({
+//     url: process.env.REDIS_URL
+// });
+
 
 const kafka= new Kafka ({
     clientId: 'producer',
-    brokers: ['localhost:9092']
+    brokers: [process.env.KAFKA_BROKER!]
 })
 
 const producer= kafka.producer({createPartitioner: Partitioners.DefaultPartitioner})
